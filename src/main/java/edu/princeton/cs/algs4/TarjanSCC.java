@@ -23,6 +23,9 @@
 
 package edu.princeton.cs.algs4;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *  The {@code TarjanSCC} class represents a data type for
  *  determining the strong components in a digraph.
@@ -59,7 +62,6 @@ public class TarjanSCC {
     private int[] low;               // low[v] = low number of v
     private int pre;                 // preorder number counter
     private int count;               // number of strongly-connected components
-    private Stack<Integer> stack;
 
 
     /**
@@ -68,7 +70,6 @@ public class TarjanSCC {
      */
     public TarjanSCC(Digraph G) {
         marked = new boolean[G.V()];
-        stack = new Stack<Integer>();
         id = new int[G.V()];
         low = new int[G.V()];
         for (int v = 0; v < G.V(); v++) {
@@ -79,26 +80,33 @@ public class TarjanSCC {
         assert check(G);
     }
 
-    private void dfs(Digraph G, int v) {
+    private List<Integer> dfs(Digraph G, int v) {
         marked[v] = true;
         low[v] = pre++;
         int min = low[v];
-        stack.push(v);
+        // make a singleton heap containing v
+        List<Integer> ws = new ArrayList<Integer>();
+        ws.add(v);
         for (int w : G.adj(v)) {
-            if (!marked[w]) dfs(G, w);
+            if (!marked[w]) ws.addAll(dfs(G, w));
             if (low[w] < min) min = low[w];
         }
         if (min < low[v]) {
             low[v] = min;
-            return;
+            return ws;
         }
-        int w;
-        do {
-            w = stack.pop();
+        for (int i = 0; i < ws.size(); i++) {
+            int r = i + (int) (Math.random() * (ws.size() - i));
+            int temp = ws.get(i);
+            ws.set(i, ws.get(r));
+            ws.set(r, temp);
+        }
+        for (int w : ws) {
             id[w] = count;
             low[w] = G.V();
-        } while (w != v);
+        }
         count++;
+        return new ArrayList<Integer>();
     }
 
 
