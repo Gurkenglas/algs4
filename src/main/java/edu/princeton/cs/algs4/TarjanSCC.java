@@ -23,8 +23,7 @@
 
 package edu.princeton.cs.algs4;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Stream;
 
 /**
  *  The {@code TarjanSCC} class represents a data type for
@@ -80,33 +79,25 @@ public class TarjanSCC {
         assert check(G);
     }
 
-    private List<Integer> dfs(Digraph G, int v) {
+    private Stream<Integer> dfs(Digraph G, int v) {
         marked[v] = true;
         low[v] = pre++;
         int min = low[v];
-        // make a singleton heap containing v
-        List<Integer> ws = new ArrayList<Integer>();
-        ws.add(v);
+        Stream<Integer> ws = Stream.of(v);
         for (int w : G.adj(v)) {
-            if (!marked[w]) ws.addAll(dfs(G, w));
+            if (!marked[w]) ws = Stream.concat(ws, dfs(G, w));
             if (low[w] < min) min = low[w];
         }
         if (min < low[v]) {
             low[v] = min;
             return ws;
         }
-        for (int i = 0; i < ws.size(); i++) {
-            int r = i + (int) (Math.random() * (ws.size() - i));
-            int temp = ws.get(i);
-            ws.set(i, ws.get(r));
-            ws.set(r, temp);
-        }
-        for (int w : ws) {
+        ws.forEach(w -> {
             id[w] = count;
             low[w] = G.V();
-        }
+        });
         count++;
-        return new ArrayList<Integer>();
+        return Stream.empty();
     }
 
 
