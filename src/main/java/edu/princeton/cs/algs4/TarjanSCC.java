@@ -23,6 +23,7 @@
 
 package edu.princeton.cs.algs4;
 
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -79,13 +80,13 @@ public class TarjanSCC {
         assert check(G);
     }
 
-    private Stream<Integer> dfs(Digraph G, int v) {
+    private IntStream dfs(Digraph G, int v) {
         marked[v] = true;
         low[v] = pre++;
         int min = low[v];
-        Stream<Integer> ws = Stream.of(v);
+        IntStream ws = IntStream.of(v);
         for (int w : G.adj(v)) {
-            if (!marked[w]) ws = Stream.concat(ws, dfs(G, w));
+            if (!marked[w]) ws = IntStream.concat(ws, dfs(G, w));
             if (low[w] < min) min = low[w];
         }
         if (min < low[v]) {
@@ -97,7 +98,7 @@ public class TarjanSCC {
             low[w] = G.V();
         });
         count++;
-        return Stream.empty();
+        return IntStream.empty();
     }
 
 
